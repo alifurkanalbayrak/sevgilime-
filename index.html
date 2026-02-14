@@ -1,0 +1,1509 @@
+<!doctype html>
+<html lang="tr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
+
+    <!-- ✅ iOS “Ana Ekrana Ekle” ile daha tam ekran -->
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta
+      name="apple-mobile-web-app-status-bar-style"
+      content="black-translucent"
+    />
+    <meta name="theme-color" content="#070914" />
+
+    <title>❤️ Sevgilim</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Montserrat:wght@300;500;700&family=Dancing+Script:wght@600&display=swap"
+      rel="stylesheet"
+    />
+
+    <style>
+      :root {
+        --bg1: #070914;
+        --bg2: #141a33;
+        --ice: #d4eaf7;
+        --pink: #ff6b9a;
+        --gold: #ffd166;
+        --shadow: 0 18px 45px rgba(0, 0, 0, 0.35);
+        --ease: cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        -webkit-tap-highlight-color: transparent;
+      }
+
+      /* ✅ 100vh yerine mobilde daha stabil: 100dvh / 100svh */
+      html,
+      body {
+        width: 100%;
+        height: 100dvh;
+        overflow: hidden;
+        font-family: "Montserrat", sans-serif;
+        background:
+          radial-gradient(1200px 800px at 20% 10%, #1c2a63 0%, transparent 55%),
+          radial-gradient(900px 600px at 80% 30%, #3b1c55 0%, transparent 55%),
+          linear-gradient(to bottom, var(--bg1), var(--bg2));
+        color: #fff;
+        position: fixed;
+        inset: 0;
+        overscroll-behavior: none;
+        touch-action: manipulation;
+      }
+
+      @supports (height: 100svh) {
+        html,
+        body {
+          height: 100svh;
+        }
+      }
+
+      .screen {
+        position: absolute;
+        inset: 0;
+        display: none;
+        justify-content: center;
+        align-items: center;
+        opacity: 0;
+        transition: opacity 1.05s var(--ease);
+        z-index: 10;
+      }
+      .active-screen {
+        display: flex !important;
+        opacity: 1 !important;
+      }
+
+      /* Tap-to-start overlay */
+      #tapLayer {
+        position: fixed;
+        inset: 0;
+        z-index: 999;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background:
+          radial-gradient(
+            600px 420px at 50% 40%,
+            rgba(255, 255, 255, 0.12),
+            transparent 60%
+          ),
+          rgba(0, 0, 0, 0.35);
+        backdrop-filter: blur(8px);
+        opacity: 1;
+        transition: opacity 0.6s var(--ease);
+      }
+      #tapLayer.hidden {
+        opacity: 0;
+        pointer-events: none;
+      }
+      .tapCard {
+        width: min(560px, calc(100% - 32px));
+        border: 1px solid rgba(255, 255, 255, 0.14);
+        border-radius: 22px;
+        background: rgba(10, 12, 22, 0.48);
+        box-shadow: var(--shadow);
+        padding: 22px 18px;
+        text-align: center;
+      }
+      .tapTitle {
+        font-family: "Great Vibes", cursive;
+        font-size: clamp(2.3rem, 6.4vw, 3.3rem);
+        color: var(--ice);
+        margin-bottom: 6px;
+      }
+      .tapSub {
+        color: rgba(255, 255, 255, 0.85);
+        font-weight: 300;
+        letter-spacing: 1.2px;
+        font-size: 0.86rem;
+        line-height: 1.45;
+        margin-bottom: 14px;
+      }
+      .tapBtn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        border: none;
+        cursor: pointer;
+        border-radius: 16px;
+        padding: 14px 18px;
+        background: linear-gradient(
+          135deg,
+          rgba(255, 107, 154, 0.88),
+          rgba(255, 209, 102, 0.76)
+        );
+        color: #0b0d17;
+        font-weight: 900;
+        letter-spacing: 0.6px;
+        box-shadow: 0 14px 35px rgba(255, 107, 154, 0.25);
+        transition: transform 0.15s var(--ease);
+        touch-action: manipulation;
+      }
+      .tapBtn:active {
+        transform: translateY(1px) scale(0.99);
+      }
+      .tiny {
+        margin-top: 10px;
+        color: rgba(255, 255, 255, 0.55);
+        font-size: 0.72rem;
+      }
+
+      /* ENTRY */
+      #entry-screen {
+        padding: 20px;
+      }
+      .starLayer {
+        position: absolute;
+        inset: 0;
+        overflow: hidden;
+        z-index: 1;
+        transition: transform 0.1s linear;
+      }
+      .star {
+        position: absolute;
+        background: white;
+        border-radius: 50%;
+        opacity: 0.7;
+        filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.25));
+        animation: twinkle var(--tw) infinite;
+      }
+      .shooting {
+        position: absolute;
+        width: 260px;
+        height: 2px;
+        background: linear-gradient(
+          90deg,
+          rgba(255, 255, 255, 0),
+          rgba(255, 255, 255, 0.9),
+          rgba(255, 255, 255, 0)
+        );
+        opacity: 0;
+        transform: rotate(-25deg);
+        animation: shoot 7.5s var(--ease) infinite;
+        filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.25));
+        z-index: 1;
+      }
+      @keyframes shoot {
+        0% {
+          opacity: 0;
+          transform: translate(-40vw, -30vh) rotate(-25deg);
+        }
+        10% {
+          opacity: 0.65;
+        }
+        20% {
+          opacity: 0;
+          transform: translate(55vw, 45vh) rotate(-25deg);
+        }
+        100% {
+          opacity: 0;
+        }
+      }
+
+      .hero-card {
+        z-index: 2;
+        text-align: center;
+        width: min(780px, 100%);
+        padding: 18px;
+        animation: floaty 4s ease-in-out infinite;
+      }
+
+      .hero-title {
+        font-family: "Great Vibes", cursive;
+        color: var(--ice);
+        font-size: clamp(2.9rem, 8.2vw, 4.4rem);
+        margin-bottom: 10px;
+        text-shadow: 0 0 22px rgba(212, 234, 247, 0.25);
+      }
+      .hero-sub {
+        color: rgba(163, 196, 243, 0.92);
+        letter-spacing: 2px;
+        font-size: 0.92rem;
+        font-weight: 300;
+        line-height: 1.55;
+      }
+
+      /* COUNTER CARD */
+      .counterCard {
+        margin: 18px auto 0;
+        width: min(560px, 100%);
+        border-radius: 22px;
+        border: 1px solid rgba(255, 255, 255, 0.14);
+        background: rgba(255, 255, 255, 0.06);
+        backdrop-filter: blur(12px);
+        box-shadow: var(--shadow);
+        padding: 14px 14px 12px;
+      }
+      .counterTitle {
+        font-size: 0.78rem;
+        letter-spacing: 1.4px;
+        color: rgba(255, 255, 255, 0.72);
+        margin-bottom: 10px;
+      }
+      .counterGrid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 10px;
+      }
+      .counterItem {
+        border-radius: 16px;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        background: rgba(0, 0, 0, 0.18);
+        padding: 12px 10px;
+      }
+      .counterNum {
+        font-size: 1.3rem;
+        font-weight: 900;
+        color: #fff;
+      }
+      .counterLbl {
+        margin-top: 4px;
+        font-size: 0.72rem;
+        color: rgba(255, 255, 255, 0.7);
+        letter-spacing: 1px;
+      }
+
+      .gemBtn {
+        margin-top: 18px;
+        width: 92px;
+        height: 92px;
+        border-radius: 26px;
+        border: 1px solid rgba(255, 255, 255, 0.16);
+        background:
+          radial-gradient(
+            50px 50px at 30% 25%,
+            rgba(255, 255, 255, 0.28),
+            transparent 65%
+          ),
+          rgba(255, 255, 255, 0.07);
+        box-shadow: var(--shadow);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: transform 0.2s var(--ease);
+        touch-action: manipulation;
+      }
+      .gemBtn:hover {
+        transform: translateY(-2px);
+      }
+      .gem {
+        font-size: 54px;
+        filter: drop-shadow(0 0 18px rgba(212, 234, 247, 0.35));
+        animation: pulse 1.6s infinite;
+      }
+      .hint {
+        margin-top: 14px;
+        color: rgba(255, 255, 255, 0.35);
+        font-size: 0.75rem;
+      }
+
+      /* GAME */
+      #game-screen {
+        background: linear-gradient(180deg, #fff0f3 0%, #ffe7ef 65%, #fff 100%);
+        color: #222;
+        flex-direction: column;
+        padding: 22px;
+        gap: 14px;
+      }
+      .gameCard {
+        width: min(680px, 100%);
+        background: rgba(255, 255, 255, 0.86);
+        border: 2px solid rgba(255, 202, 212, 0.95);
+        border-radius: 24px;
+        box-shadow: 0 16px 40px rgba(255, 175, 190, 0.22);
+        padding: 18px 16px;
+        position: relative;
+        overflow: hidden;
+      }
+      .aiText {
+        font-weight: 650;
+        line-height: 1.42;
+        font-size: 0.98rem;
+      }
+      .meterWrap {
+        margin-top: 12px;
+        position: relative;
+        height: 12px;
+        background: rgba(255, 107, 154, 0.14);
+        border-radius: 999px;
+        overflow: hidden;
+      }
+      .meter {
+        height: 100%;
+        width: 0%;
+        background: linear-gradient(
+          90deg,
+          rgba(255, 107, 154, 0.92),
+          rgba(255, 209, 102, 0.86)
+        );
+        border-radius: 999px;
+        transition: width 0.35s var(--ease);
+      }
+      .meterLabel {
+        margin-top: 10px;
+        display: flex;
+        justify-content: space-between;
+        color: rgba(0, 0, 0, 0.55);
+        font-size: 0.78rem;
+        font-weight: 600;
+      }
+      #game-area {
+        width: min(760px, 100%);
+        height: min(46vh, 480px);
+        border-radius: 28px;
+        background:
+          radial-gradient(
+            420px 280px at 30% 20%,
+            rgba(255, 107, 154, 0.16),
+            transparent 60%
+          ),
+          radial-gradient(
+            420px 280px at 80% 70%,
+            rgba(255, 209, 102, 0.16),
+            transparent 60%
+          ),
+          rgba(255, 255, 255, 0.74);
+        border: 1px solid rgba(255, 107, 154, 0.2);
+        box-shadow: 0 18px 45px rgba(255, 175, 190, 0.2);
+        position: relative;
+        overflow: hidden;
+        touch-action: manipulation;
+      }
+      #target {
+        position: absolute;
+        font-size: 62px;
+        cursor: pointer;
+        user-select: none;
+        transform: translate(-50%, -50%);
+        transition: transform 0.12s var(--ease);
+        will-change: left, top, transform;
+        filter: drop-shadow(0 10px 18px rgba(255, 107, 154, 0.25));
+        touch-action: manipulation;
+      }
+      #target:active {
+        transform: translate(-50%, -50%) scale(0.96);
+      }
+
+      /* STORY – tam ekran zorunlu */
+      #story-screen {
+        background: #000;
+        overflow: hidden;
+        align-items: stretch;
+        justify-content: stretch;
+      }
+      #story-screen .full-screen-wrap {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        min-height: 100%;
+        overflow: hidden;
+      }
+      .full-screen-wrap {
+        position: relative;
+        width: 100%;
+        max-width: 100vw;
+        height: 100dvh;
+        min-height: 100dvh;
+        overflow: hidden;
+      }
+      @supports (height: 100svh) {
+        .full-screen-wrap {
+          height: 100svh;
+          min-height: 100svh;
+        }
+      }
+
+      .grain {
+        pointer-events: none;
+        position: absolute;
+        inset: 0;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)' opacity='.2'/%3E%3C/svg%3E");
+        opacity: 0.16;
+        mix-blend-mode: overlay;
+      }
+      #s-img {
+        display: block;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 100%;
+        height: 100%;
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain;
+        object-position: center center;
+        transform: translate(-50%, -50%) scale(1.12);
+        opacity: 0;
+        transition:
+          opacity 1.6s var(--ease),
+          transform 7s linear;
+      }
+      .vignette {
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(
+          circle at 50% 40%,
+          transparent 55%,
+          rgba(0, 0, 0, 0.55) 100%
+        );
+        pointer-events: none;
+      }
+      .text-overlay {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        padding: 92px 24px 58px;
+        background: linear-gradient(transparent, rgba(0, 0, 0, 0.88));
+        color: #fff;
+        font-family: "Dancing Script", cursive;
+        font-size: clamp(1.7rem, 5vw, 2.35rem);
+        text-align: center;
+        opacity: 0;
+        transform: translateY(10px);
+        transition:
+          opacity 1.2s var(--ease),
+          transform 1.2s var(--ease);
+        text-shadow: 0 14px 45px rgba(0, 0, 0, 0.45);
+      }
+
+      /* STORY TOP */
+      .storyTop {
+        position: absolute;
+        top: 18px;
+        left: 18px;
+        right: 18px;
+        display: flex;
+        justify-content: flex-end;
+        gap: 12px;
+        z-index: 6;
+      }
+      .chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px 12px;
+        border-radius: 999px;
+        border: 1px solid rgba(255, 255, 255, 0.14);
+        background: rgba(0, 0, 0, 0.35);
+        backdrop-filter: blur(10px);
+        font-size: 0.78rem;
+        color: rgba(255, 255, 255, 0.92);
+      }
+
+      /* MODALS */
+      .modalBack {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.55);
+        backdrop-filter: blur(10px);
+        display: none;
+        justify-content: center;
+        align-items: center;
+        z-index: 9999;
+        padding: 18px;
+      }
+      .modalBack.show {
+        display: flex;
+      }
+      .modalCard {
+        width: min(760px, 100%);
+        border-radius: 26px;
+        border: 1px solid rgba(255, 255, 255, 0.14);
+        background: rgba(255, 255, 255, 0.07);
+        box-shadow: var(--shadow);
+        padding: 22px 18px;
+        text-align: center;
+      }
+      .modalCard h3 {
+        font-family: "Great Vibes", cursive;
+        color: var(--ice);
+        font-size: clamp(2.2rem, 6.5vw, 3.2rem);
+        margin-bottom: 10px;
+      }
+      .modalCard p {
+        color: rgba(255, 255, 255, 0.92);
+        font-weight: 300;
+        line-height: 1.65;
+        font-size: 1rem;
+        white-space: pre-line;
+      }
+      .modalActions {
+        margin-top: 14px;
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+        flex-wrap: wrap;
+      }
+      .btn {
+        border: 1px solid rgba(255, 255, 255, 0.16);
+        background: rgba(255, 255, 255, 0.08);
+        color: rgba(255, 255, 255, 0.92);
+        border-radius: 16px;
+        padding: 12px 14px;
+        font-weight: 900;
+        cursor: pointer;
+        transition: transform 0.15s var(--ease);
+        touch-action: manipulation;
+      }
+      .btn:active {
+        transform: scale(0.99);
+      }
+      .btn.primary {
+        background: linear-gradient(
+          135deg,
+          rgba(255, 107, 154, 0.9),
+          rgba(255, 209, 102, 0.78)
+        );
+        border: none;
+        color: #0b0d17;
+      }
+
+      /* FINAL */
+      #final-screen {
+        background:
+          radial-gradient(
+            900px 650px at 25% 20%,
+            rgba(255, 107, 154, 0.26),
+            transparent 58%
+          ),
+          radial-gradient(
+            900px 650px at 80% 70%,
+            rgba(255, 209, 102, 0.2),
+            transparent 60%
+          ),
+          linear-gradient(180deg, #070914, #141a33);
+        padding: 18px;
+        flex-direction: column;
+      }
+      .letter {
+        width: min(780px, 100%);
+        border-radius: 26px;
+        border: 1px solid rgba(255, 255, 255, 0.14);
+        background: rgba(255, 255, 255, 0.06);
+        backdrop-filter: blur(12px);
+        box-shadow: var(--shadow);
+        padding: 22px 18px;
+        text-align: center;
+      }
+      .letter h2 {
+        font-family: "Great Vibes", cursive;
+        color: var(--ice);
+        font-size: clamp(2.5rem, 7.2vw, 3.7rem);
+        margin-bottom: 10px;
+      }
+      .letter p {
+        color: rgba(255, 255, 255, 0.9);
+        font-weight: 300;
+        line-height: 1.7;
+        font-size: 1rem;
+        white-space: pre-line;
+      }
+      .btnRow {
+        margin-top: 16px;
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+        flex-wrap: wrap;
+      }
+
+      /* Floating hearts */
+      .heart-particle {
+        position: fixed;
+        bottom: -50px;
+        pointer-events: none;
+        z-index: 3;
+        filter: drop-shadow(0 10px 15px rgba(0, 0, 0, 0.25));
+      }
+
+      /* Flower petals */
+      .petal {
+        position: fixed;
+        top: -40px;
+        z-index: 9998;
+        pointer-events: none;
+        filter: drop-shadow(0 10px 18px rgba(0, 0, 0, 0.25));
+      }
+
+      /* Animations */
+      @keyframes twinkle {
+        0%,
+        100% {
+          opacity: 0.25;
+        }
+        50% {
+          opacity: 1;
+        }
+      }
+      @keyframes pulse {
+        0% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.14);
+        }
+        100% {
+          transform: scale(1);
+        }
+      }
+      @keyframes floaty {
+        0%,
+        100% {
+          transform: translateY(0);
+        }
+        50% {
+          transform: translateY(-14px);
+        }
+      }
+
+      /* Resimler: mobilde de tam resim sığsın (iki kişi görünsün) */
+      @media (max-width: 480px) {
+        .full-screen-wrap {
+          min-height: -webkit-fill-available;
+          min-height: 100dvh;
+          padding: 0;
+        }
+        #s-img {
+          object-fit: contain;
+          object-position: center center;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <audio id="bgMusic" loop preload="auto">
+      <source src="muzik.mp3" type="audio/mpeg" />
+    </audio>
+
+   
+
+    <!-- Tap-to-start -->
+    <div id="tapLayer">
+      <div class="tapCard">
+        <div class="tapTitle">Hayatımm..</div>
+        <div class="tapSub">
+          Bu küçük evreni <b>sesle</b> ve <b>ışıkla</b> başlatalım.<br />
+          Hazır ol… kalbin biraz hızlanabilir. 🙂
+        </div>
+        <button id="startBtn" class="tapBtn">▶ Başla Hadi..</button>
+        <div class="tiny">
+          Not: Telefonda ses için dokunman gerekli aşkımmm.
+        </div>
+      </div>
+    </div>
+
+    <!-- SECRET MODAL (otomatik aç/kapat) -->
+    <div id="secretModal" class="modalBack">
+      <div class="modalCard">
+        <h3>Güzelim..</h3>
+        <p id="secretText"></p>
+      </div>
+    </div>
+
+    <!-- CONFIRM REPLAY MODAL -->
+    <div id="confirmModal" class="modalBack">
+      <div class="modalCard">
+        <h3>Güzelim..</h3>
+        <p>Baştan başlamak ister misin balım?</p>
+        <div class="modalActions">
+          <button type="button" class="btn primary" id="confirmYes">Evet</button>
+          <button type="button" class="btn" id="confirmNo">Yok</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 1) ENTRY -->
+    <section id="entry-screen" class="screen active-screen">
+      <div class="starLayer" id="starLayer"></div>
+      <div class="shooting" style="top: 18%; left: -20%"></div>
+
+      <div class="hero-card">
+        <div class="hero-title">Sonsuzluğuma...</div>
+        <div class="hero-sub">
+          17 Aralık 2024’ten beri…<br />
+          <span style="opacity: 0.75">Aynı kalpte büyüyen bir hikâye.</span>
+        </div>
+
+        <!-- COUNTER -->
+        <div class="counterCard">
+          <div class="counterTitle">BİZ OLALI</div>
+          <div class="counterGrid">
+            <div class="counterItem">
+              <div class="counterNum" id="cDays">0</div>
+              <div class="counterLbl">GÜN</div>
+            </div>
+            <div class="counterItem">
+              <div class="counterNum" id="cHours">0</div>
+              <div class="counterLbl">SAAT</div>
+            </div>
+            <div class="counterItem">
+              <div class="counterNum" id="cMins">0</div>
+              <div class="counterLbl">DAKİKA</div>
+            </div>
+            <div class="counterItem">
+              <div class="counterNum" id="cSecs">0</div>
+              <div class="counterLbl">SANİYE</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="gemBtn" id="goGameBtn" aria-label="Devam Et">
+          <div class="gem">💎</div>
+        </div>
+
+        <div class="hint">Bizim Hikayemiz</div>
+      </div>
+    </section>
+
+    <!-- 2) GAME -->
+    <section id="game-screen" class="screen">
+      <div class="gameCard">
+        <div class="aiText" id="ai-text">
+          Hayatımın Anlamı 💖<br />
+          Kaçan kalbi yakala… her yakalayışın beni sana biraz daha yaklaştırsın.
+        </div>
+
+        <div class="meterWrap" aria-label="Sevgi Metre">
+          <div class="meter" id="meter"></div>
+        </div>
+
+        <div class="meterLabel">
+          <span>Sevgi Metre</span>
+          <span id="meterText">0 / 6</span>
+        </div>
+      </div>
+
+      <div id="game-area">
+        <div id="target">💖</div>
+      </div>
+    </section>
+
+    <!-- 3) STORY -->
+    <section id="story-screen" class="screen">
+      <div class="full-screen-wrap">
+        <div class="storyTop">
+          <div class="chip"></div>
+        </div>
+
+        <img id="s-img" src="" alt="Anılar" />
+        <div class="vignette"></div>
+        <div class="grain"></div>
+        <div class="text-overlay" id="s-text"></div>
+      </div>
+    </section>
+
+    <!-- 4) FINAL -->
+    <section id="final-screen" class="screen">
+      <div class="letter">
+        <h2>Güzelime</h2>
+        <p id="finalText"></p>
+
+        <div class="btnRow">
+          <button type="button" class="btn primary" id="flowerBtn">
+            🌸 Çiçeğini al hadi
+          </button>
+   
+          <button type="button" class="btn" id="replayBtn">
+            ↻ Baştan Hikayemizi izlemek istesen bas
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <script>
+      // ================== FULLSCREEN (Android/desktop) ==================
+      async function requestFullscreen() {
+        const el = document.documentElement;
+        try {
+          if (document.fullscreenElement) return;
+          if (el.requestFullscreen) return el.requestFullscreen();
+          if (el.webkitRequestFullscreen) return el.webkitRequestFullscreen();
+        } catch {}
+      }
+
+      // ================== KİŞİSEL AYARLAR ==================
+      const LOVE_START = new Date("2024-12-17T00:00:00+03:00");
+
+      const SECRET_LETTER = `
+Sevdiceğimm,
+Sen benim sadece bugünüm değil, hayal ettiğim her yarınımsın.
+
+İyi ki varsın.
+      `.trim();
+
+      const FINAL_MESSAGE = `
+Hayatım.
+
+Seni çok seviyorum.
+
+İyi ki hayatımdasın.
+İyi ki “biz” olduk.
+
+❤️
+      `.trim();
+
+      const storyData = [
+        { img: "resim1.webp", text: "Bakışlarında bulduğum huzur..." },
+        { img: "resim2.webp", text: "Gülüşün, en parlak yıldızım." },
+        { img: "resim3.webp", text: "Ellerini hiç bırakmayacağım." },
+        { img: "resim4.webp", text: "Her dakikamız bir ömre bedel." },
+        { img: "resim5.webp", text: "Senin yanın en sevdiğim manzara." },
+        { img: "resim6.webp", text: "Kalbinin ritmi en güzel melodi." },
+        { img: "resim7.webp", text: "En güzel tamamımsın..." },
+        { img: "resim8.webp", text: "Ömrümün en tatlı uykusu." },
+        { img: "resim9.webp", text: "Tek yol arkadaşım..." },
+        { img: "resim10.webp", text: "Adın şiire dönüşüyor bende." },
+        { img: "resim11.webp", text: "Evim sensin..." },
+        { img: "resim12.webp", text: "Seninle her şey çok daha anlamlı." },
+        { img: "resim13.webp", text: "Aynı rüyayı uyanık görmek..." },
+        { img: "resim15.webp", text: "Nerdeydin bunca zaman..." },
+        { img: "resim16.webp", text: "Kalp bahçem senin." },
+        { img: "resim17.webp", text: "Sen benim en güzel 'iyi ki'msin." },
+        { img: "resim18.webp", text: "Hayatımdaki en güzel rüyamsın" },
+        { img: "resim19.webp", text: "Seninle susmak bile güzel." },
+        { img: "resim20.webp", text: "Gönlümü sana adadım." },
+        { img: "resim21.webp", text: "Kalbimin mülkü senin." },
+        { img: "resim22.webp", text: "Artık istiyorum senle olsun bütün anılarım." },
+      ];
+
+      // ================== ELEMENTS ==================
+      const music = document.getElementById("bgMusic");
+      const myVoice = document.getElementById("myVoice");
+
+      const tapLayer = document.getElementById("tapLayer");
+      const startBtn = document.getElementById("startBtn");
+      const goGameBtn = document.getElementById("goGameBtn");
+
+      const meter = document.getElementById("meter");
+      const meterText = document.getElementById("meterText");
+      const aiText = document.getElementById("ai-text");
+
+      const target = document.getElementById("target");
+      const gameArea = document.getElementById("game-area");
+
+      const sImg = document.getElementById("s-img");
+      const sText = document.getElementById("s-text");
+
+      const secretModal = document.getElementById("secretModal");
+      const secretText = document.getElementById("secretText");
+
+      const confirmModal = document.getElementById("confirmModal");
+      const confirmYes = document.getElementById("confirmYes");
+      const confirmNo = document.getElementById("confirmNo");
+
+      const finalText = document.getElementById("finalText");
+      const replayBtn = document.getElementById("replayBtn");
+      const flowerBtn = document.getElementById("flowerBtn");
+      const voiceBtn = document.getElementById("voiceBtn");
+
+      const cDays = document.getElementById("cDays");
+      const cHours = document.getElementById("cHours");
+      const cMins = document.getElementById("cMins");
+      const cSecs = document.getElementById("cSecs");
+
+      // ================== STATE ==================
+      let started = false;
+      let heartInterval = null;
+
+      let score = 0;
+      const maxScore = 6;
+
+      let sIdx = 0;
+      let storyInterval = null;
+      let storyTimeout = null;
+      let storyPaused = false;
+
+      // ================== AUDIO DUCKING ==================
+      const MUSIC_NORMAL = 0.95;
+      const MUSIC_DUCKED = 0.18;
+      const DUCK_FADE_MS = 420;
+
+      function fadeVolume(audioEl, to, ms = 400) {
+        const from = audioEl.volume;
+        const start = performance.now();
+        function step(t) {
+          const p = Math.min(1, (t - start) / ms);
+          audioEl.volume = from + (to - from) * p;
+          if (p < 1) requestAnimationFrame(step);
+        }
+        requestAnimationFrame(step);
+      }
+
+      function safePlayMusic() {
+        music.volume = MUSIC_NORMAL;
+        const p = music.play();
+        if (p && typeof p.catch === "function") p.catch(() => {});
+      }
+
+      function duckMusic() {
+        if (!music.paused) fadeVolume(music, MUSIC_DUCKED, DUCK_FADE_MS);
+      }
+
+      function unduckMusic() {
+        if (!music.paused) fadeVolume(music, MUSIC_NORMAL, DUCK_FADE_MS);
+      }
+
+      function safePlayVoice() {
+        duckMusic();
+        myVoice.currentTime = 0;
+        const p = myVoice.play();
+        if (p && typeof p.catch === "function") p.catch(() => {});
+        myVoice.onended = () => unduckMusic();
+      }
+
+      // ================== HELPERS ==================
+      function changeScreen(nextId) {
+        const current = document.querySelector(".active-screen");
+        const next = document.getElementById(nextId);
+        if (!current || !next) return;
+
+        current.style.opacity = "0";
+        setTimeout(() => {
+          current.classList.remove("active-screen");
+          next.classList.add("active-screen");
+          next.style.opacity = "1";
+        }, 850);
+      }
+
+      function randBetween(min, max) {
+        return Math.random() * (max - min) + min;
+      }
+
+      function spawnHeart() {
+        const h = document.createElement("div");
+        h.className = "heart-particle";
+        h.innerHTML = Math.random() > 0.5 ? "❤️" : "💙";
+        h.style.left = Math.random() * 100 + "vw";
+        h.style.fontSize = Math.random() * 22 + 16 + "px";
+        document.body.appendChild(h);
+
+        const anim = h.animate(
+          [
+            { transform: "translateY(0) rotate(0deg)", opacity: 0.55 },
+            {
+              transform: `translateY(-115vh) rotate(${Math.random() * 360}deg)`,
+              opacity: 0,
+            },
+          ],
+          { duration: 6200, easing: "linear" },
+        );
+        anim.onfinish = () => h.remove();
+      }
+
+      function setMeter() {
+        const pct = Math.min(100, (score / maxScore) * 100);
+        meter.style.width = pct + "%";
+        meterText.textContent = `${score} / ${maxScore}`;
+      }
+
+      function moveHeart() {
+        const rect = gameArea.getBoundingClientRect();
+        const x = randBetween(rect.width * 0.12, rect.width * 0.88);
+        const y = randBetween(rect.height * 0.18, rect.height * 0.82);
+        target.style.left = x + "px";
+        target.style.top = y + "px";
+      }
+
+      function popMiniConfettiAt(x, y) {
+        const count = 12;
+        for (let i = 0; i < count; i++) {
+          const d = document.createElement("div");
+          d.style.position = "fixed";
+          d.style.left = x + "px";
+          d.style.top = y + "px";
+          d.style.width = randBetween(6, 10) + "px";
+          d.style.height = randBetween(6, 12) + "px";
+          d.style.borderRadius = "3px";
+          d.style.background = `hsl(${Math.floor(randBetween(0, 360))} 85% 70%)`;
+          d.style.zIndex = 9999;
+          d.style.pointerEvents = "none";
+          document.body.appendChild(d);
+
+          const dx = randBetween(-160, 160);
+          const dy = randBetween(-220, -80);
+          const rot = randBetween(-360, 360);
+
+          const anim = d.animate(
+            [
+              { transform: "translate(0,0) rotate(0deg)", opacity: 1 },
+              {
+                transform: `translate(${dx}px, ${dy}px) rotate(${rot}deg)`,
+                opacity: 0,
+              },
+            ],
+            { duration: 720, easing: "cubic-bezier(0.2, 0.8, 0.2, 1)" },
+          );
+          anim.onfinish = () => d.remove();
+        }
+      }
+
+      function popConfettiRain() {
+        const count = 12;
+        for (let i = 0; i < count; i++) {
+          const d = document.createElement("div");
+          d.style.position = "fixed";
+          d.style.left = randBetween(0, window.innerWidth) + "px";
+          d.style.top = "-20px";
+          d.style.width = randBetween(6, 10) + "px";
+          d.style.height = randBetween(8, 14) + "px";
+          d.style.borderRadius = "3px";
+          d.style.background = `hsl(${Math.floor(randBetween(0, 360))} 85% 70%)`;
+          d.style.zIndex = 9999;
+          d.style.pointerEvents = "none";
+          document.body.appendChild(d);
+
+          const dy = window.innerHeight + 60;
+          const dx = randBetween(-120, 120);
+          const rot = randBetween(-540, 540);
+
+          const anim = d.animate(
+            [
+              { transform: "translate(0,0) rotate(0deg)", opacity: 1 },
+              {
+                transform: `translate(${dx}px, ${dy}px) rotate(${rot}deg)`,
+                opacity: 0.12,
+              },
+            ],
+            { duration: randBetween(1150, 1750), easing: "linear" },
+          );
+          anim.onfinish = () => d.remove();
+        }
+      }
+
+      // ================== FLOW ==================
+      function initExperience() {
+        if (started) return;
+        started = true;
+
+        // ✅ kullanıcı tıklamasıyla çağrıldığı için fullscreen şansı var
+        requestFullscreen();
+
+        try {
+          music.load();
+          myVoice.load();
+        } catch {}
+
+        safePlayMusic();
+        tapLayer.classList.add("hidden");
+
+        heartInterval = setInterval(spawnHeart, 650);
+      }
+
+      function goToGame() {
+        changeScreen("game-screen");
+        setTimeout(() => moveHeart(), 250);
+      }
+
+      function catchHeart(e) {
+        score++;
+        setMeter();
+
+        const rect = target.getBoundingClientRect();
+        popMiniConfettiAt(
+          rect.left + rect.width / 2,
+          rect.top + rect.height / 2,
+        );
+
+        const msgs = [
+          "Tam isabet balım 🥰",
+          "Bir tane daha… ✨",
+          "Aşk kazanıyor 🌸",
+          "Kalbim hızlandı 💓",
+          "Az kaldı… 🫶",
+          "Hazır mısın? 🚀",
+        ];
+        aiText.innerHTML = `<b>${msgs[Math.min(score - 1, msgs.length - 1)]}</b>`;
+
+        if (score >= maxScore) {
+          setTimeout(() => {
+            changeScreen("story-screen");
+            runStory();
+          }, 850);
+        } else {
+          moveHeart();
+        }
+      }
+
+      // ================== STORY ==================
+      function clearStoryTimers() {
+        if (storyInterval) clearInterval(storyInterval);
+        if (storyTimeout) clearTimeout(storyTimeout);
+        storyInterval = null;
+        storyTimeout = null;
+      }
+
+      // Bozuk/yüklenemeyen resimlerde gösterilecek placeholder (gradient)
+      const FALLBACK_IMG =
+        "data:image/svg+xml," +
+        encodeURIComponent(
+          '<svg xmlns="http://www.w3.org/2000/svg" width="800" height="800" viewBox="0 0 800 800"><defs><linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:%231c2a63"/><stop offset="100%" style="stop-color:%233b1c55"/></linearGradient></defs><rect width="800" height="800" fill="url(%23g)"/><text x="400" y="380" font-family="Georgia" font-size="24" fill="rgba(255,255,255,0.6)" text-anchor="middle">❤️</text></svg>'
+        );
+
+      function preloadStoryAround(idx) {
+        [idx, idx + 1].forEach((k) => {
+          if (k >= 0 && k < storyData.length) {
+            const im = new Image();
+            im.src = storyData[k].img;
+          }
+        });
+      }
+
+      function setStoryTextAndImage(index) {
+        const item = storyData[index];
+        const imgPath = item.img;
+        sText.textContent = item.text;
+
+        const checkAndShow = (src) => {
+          sImg.onerror = null;
+          sImg.onload = function imgLoaded() {
+            sImg.onload = null;
+            if (this.naturalWidth === 0 || this.naturalHeight === 0) {
+              this.src = FALLBACK_IMG;
+            }
+          };
+          sImg.onerror = function imgFailed() {
+            sImg.onerror = null;
+            sImg.onload = null;
+            this.src = FALLBACK_IMG;
+          };
+          sImg.src = src;
+        };
+
+        checkAndShow(imgPath);
+        preloadStoryAround(index);
+      }
+
+      function storyTransitionTo(index) {
+        sImg.style.opacity = "0";
+        sText.style.opacity = "0";
+        sText.style.transform = "translateY(10px)";
+        sImg.style.transform = "translate(-50%, -50%) scale(1.12)";
+
+        storyTimeout = setTimeout(() => {
+          setStoryTextAndImage(index);
+          sImg.style.opacity = "1";
+          sImg.style.transform = "translate(-50%, -50%) scale(1.02)";
+          sText.style.opacity = "1";
+          sText.style.transform = "translateY(0)";
+        }, 900);
+      }
+
+      function pauseStory() {
+        storyPaused = true;
+        clearStoryTimers();
+      }
+
+      function resumeStory() {
+        if (
+          !document
+            .getElementById("story-screen")
+            .classList.contains("active-screen")
+        )
+          return;
+
+        storyPaused = false;
+        clearStoryTimers();
+
+        storyInterval = setInterval(() => {
+          if (storyPaused) return;
+
+          sIdx++;
+          if (sIdx >= storyData.length) {
+            clearStoryTimers();
+            setTimeout(() => goFinal(), 1400);
+            return;
+          }
+          storyTransitionTo(sIdx);
+        }, 6800);
+      }
+
+      let secretAutoCloseTimer = null;
+
+      function openSecretAuto() {
+        pauseStory();
+        secretText.textContent = SECRET_LETTER;
+        secretModal.classList.add("show");
+
+        if (secretAutoCloseTimer) clearTimeout(secretAutoCloseTimer);
+        secretAutoCloseTimer = setTimeout(() => closeSecretAuto(), 10000);
+      }
+
+      function closeSecretAuto() {
+        secretModal.classList.remove("show");
+        resumeStory();
+      }
+
+      function runStory() {
+        clearStoryTimers();
+        storyPaused = false;
+        sIdx = 0;
+
+        setStoryTextAndImage(sIdx);
+        sImg.style.opacity = "1";
+        sImg.style.transform = "translate(-50%, -50%) scale(1.02)";
+        sText.style.opacity = "1";
+        sText.style.transform = "translateY(0)";
+
+        storyInterval = setInterval(() => {
+          if (storyPaused) return;
+
+          sIdx++;
+          if (sIdx >= storyData.length) {
+            clearStoryTimers();
+            setTimeout(() => goFinal(), 1400);
+            return;
+          }
+
+          if (sIdx === 6) {
+            storyTransitionTo(sIdx);
+            setTimeout(() => openSecretAuto(), 1100);
+            return;
+          }
+
+          storyTransitionTo(sIdx);
+        }, 6800);
+      }
+
+      // ================== FINAL ==================
+      function goFinal() {
+        clearStoryTimers();
+        finalText.textContent = FINAL_MESSAGE;
+        changeScreen("final-screen");
+        for (let i = 0; i < 10; i++) setTimeout(popConfettiRain, i * 170);
+      }
+
+      function resetAll() {
+        score = 0;
+        setMeter();
+        if (aiText) {
+          aiText.innerHTML =
+            "Selam Aşkım … 💖<br />Kaçan kalbi yakala… her yakalayışın beni sana biraz daha yaklaştırsın.";
+        }
+
+        clearStoryTimers();
+        sIdx = 0;
+        storyPaused = false;
+
+        if (heartInterval) {
+          clearInterval(heartInterval);
+          heartInterval = null;
+        }
+
+        try {
+          if (myVoice) {
+            myVoice.pause();
+            myVoice.currentTime = 0;
+          }
+          unduckMusic();
+        } catch {}
+
+        // Tam baştan başlat: ilk "Başla" ekranına dön
+        started = false;
+        if (tapLayer) tapLayer.classList.remove("hidden");
+
+        changeScreen("entry-screen");
+      }
+
+      // ================== FLOWERS ==================
+      function spawnPetal() {
+        const p = document.createElement("div");
+        p.className = "petal";
+        const petals = ["🌸", "🌷", "💐", "🌹", "🌺"];
+        p.textContent = petals[Math.floor(Math.random() * petals.length)];
+        p.style.left = randBetween(0, 100) + "vw";
+        p.style.fontSize = randBetween(18, 34) + "px";
+        document.body.appendChild(p);
+
+        const dx = randBetween(-120, 120);
+        const rot = randBetween(-420, 420);
+
+        const anim = p.animate(
+          [
+            { transform: "translate(0,0) rotate(0deg)", opacity: 1 },
+            {
+              transform: `translate(${dx}px, ${window.innerHeight + 120}px) rotate(${rot}deg)`,
+              opacity: 0.1,
+            },
+          ],
+          { duration: randBetween(1600, 2400), easing: "linear" },
+        );
+        anim.onfinish = () => p.remove();
+      }
+
+      function flowerShower() {
+        for (let i = 0; i < 28; i++) setTimeout(spawnPetal, i * 95);
+        for (let i = 0; i < 7; i++) setTimeout(popConfettiRain, i * 190);
+      }
+
+      // ================== COUNTER (BİZ OLALI) ==================
+      function updateCounter() {
+        const entry = document.getElementById("entry-screen");
+        if (!entry) return;
+        const elDays = entry.querySelector("#cDays");
+        const elHours = entry.querySelector("#cHours");
+        const elMins = entry.querySelector("#cMins");
+        const elSecs = entry.querySelector("#cSecs");
+        if (!elDays || !elHours || !elMins || !elSecs) return;
+
+        const now = new Date();
+        const diff = Math.max(0, now - LOVE_START);
+        const totalSeconds = Math.floor(diff / 1000);
+        const days = Math.floor(totalSeconds / (24 * 3600));
+        const hours = Math.floor((totalSeconds % (24 * 3600)) / 3600);
+        const mins = Math.floor((totalSeconds % 3600) / 60);
+        const secs = totalSeconds % 60;
+
+        elDays.textContent = String(days);
+        elHours.textContent = String(hours).padStart(2, "0");
+        elMins.textContent = String(mins).padStart(2, "0");
+        elSecs.textContent = String(secs).padStart(2, "0");
+      }
+
+      // Sayaç hemen başlat, her saniye güncelle
+      updateCounter();
+      setInterval(updateCounter, 1000);
+
+      // ================== STARS + PARALLAX ==================
+      const starLayer = document.getElementById("starLayer");
+      for (let i = 0; i < 90; i++) {
+        const s = document.createElement("div");
+        s.className = "star";
+        s.style.left = Math.random() * 100 + "%";
+        s.style.top = Math.random() * 100 + "%";
+        const size = Math.random() * 2.6 + 1.2;
+        s.style.width = size + "px";
+        s.style.height = size + "px";
+        s.style.setProperty("--tw", Math.random() * 3.2 + 2.2 + "s");
+        starLayer.appendChild(s);
+      }
+
+      document.addEventListener("mousemove", (e) => {
+        const x = (e.clientX / window.innerWidth - 0.5) * 8;
+        const y = (e.clientY / window.innerHeight - 0.5) * 8;
+        starLayer.style.transform = `translate(${x}px, ${y}px)`;
+      });
+
+      // ================== EVENTS (pointerdown) ==================
+      function onPD(el, fn) {
+        el.addEventListener("pointerdown", (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          fn(e);
+        });
+      }
+
+      onPD(startBtn, () => initExperience());
+      onPD(goGameBtn, () => {
+        initExperience();
+        goToGame();
+      });
+      onPD(target, (e) => catchHeart(e));
+
+      gameArea.addEventListener("pointerdown", (e) => {
+        if (
+          document
+            .getElementById("game-screen")
+            .classList.contains("active-screen")
+        ) {
+          if (Math.random() < 0.22) moveHeart();
+        }
+      });
+
+      onPD(flowerBtn, () => flowerShower());
+      onPD(voiceBtn, () => safePlayVoice());
+
+      function openReplayModal() {
+        if (!confirmModal) return;
+        confirmModal.classList.add("show");
+        confirmModal.style.display = "flex";
+      }
+      function closeReplayModal() {
+        if (!confirmModal) return;
+        confirmModal.classList.remove("show");
+        confirmModal.style.display = "";
+      }
+      function onConfirmReplay() {
+        closeReplayModal();
+        // Hikayeyi baştan oynat: story ekranına geç ve runStory()
+        clearStoryTimers();
+        sIdx = 0;
+        storyPaused = false;
+        changeScreen("story-screen");
+        runStory();
+      }
+
+      if (replayBtn) {
+        function handleReplayClick(e) {
+          e.preventDefault();
+          e.stopPropagation();
+          openReplayModal();
+        }
+        onPD(replayBtn, handleReplayClick);
+        replayBtn.addEventListener("click", handleReplayClick);
+        replayBtn.addEventListener("touchend", function (e) {
+          e.preventDefault();
+          openReplayModal();
+        }, { passive: false });
+      }
+      if (confirmYes) {
+        function handleConfirmYes(e) {
+          e.preventDefault();
+          e.stopPropagation();
+          onConfirmReplay();
+        }
+        onPD(confirmYes, onConfirmReplay);
+        confirmYes.addEventListener("click", handleConfirmYes);
+        confirmYes.addEventListener("touchstart", handleConfirmYes, { passive: false });
+      }
+      if (confirmNo) {
+        onPD(confirmNo, closeReplayModal);
+        confirmNo.addEventListener("click", (e) => {
+          e.preventDefault();
+          closeReplayModal();
+        });
+      }
+
+      if (confirmModal) {
+        confirmModal.addEventListener("pointerdown", (e) => {
+          if (e.target === confirmModal) closeReplayModal();
+        });
+        confirmModal.addEventListener("click", (e) => {
+          if (e.target === confirmModal) closeReplayModal();
+        });
+      }
+
+      secretModal.addEventListener("pointerdown", (e) => {
+        if (e.target === secretModal) closeSecretAuto();
+      });
+
+      window.addEventListener("blur", () => {
+        if (heartInterval) clearInterval(heartInterval);
+        heartInterval = null;
+      });
+
+      window.addEventListener("focus", () => {
+        if (started && !heartInterval)
+          heartInterval = setInterval(spawnHeart, 650);
+      });
+
+      document.addEventListener("visibilitychange", () => {
+        if (!document.hidden && started) safePlayMusic();
+      });
+
+      // ================== INIT ==================
+      setMeter();
+    </script>
+  </body>
+</html>
